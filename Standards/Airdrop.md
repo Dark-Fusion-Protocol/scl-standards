@@ -101,21 +101,21 @@
 pub fn airdop(&mut self, txid: &String, payload: &String, receiver: &String, pending: bool) -> Result<u64, String> {
     let current_airdrops = match self.current_airdrops.clone() {
         Some(current_airdrops) => current_airdrops,
-        None => return Err("airdrop | current airdops".to_string()),
+        None =>  return  Err("airdop: no airdrops".to_string()),
     };
 
     let airdrop_amount = match self.airdrop_amount.clone() {
         Some(airdrop_amount) => airdrop_amount,
-        None => return Err("airdrop | airdrop amount".to_string()),
+        None =>  return  Err("airdop: no airdrops".to_string()),
     };
 
     let total_airdrops = match self.total_airdrops.clone() {
         Some(total_airdrops) => total_airdrops,
-        None => return Err("airdrop | total airdrops".to_string()),
+        None =>  return  Err("airdop: no airdrops".to_string()),
     };
 
     if current_airdrops >= total_airdrops {
-        return Err("airdrop | contract has reached max supply".to_string());
+        return Err("airdop: contract has reached max supply".to_string());
     }
 
     let mut owner_amount = airdrop_amount;
@@ -139,6 +139,9 @@ pub fn airdop(&mut self, txid: &String, payload: &String, receiver: &String, pen
 
     if pending {
        p_c.insert(receiver.to_string(), airdrop_amount);
+       if let Some(owned) = self.owners.get(receiver){
+            owner_amount += owned;    
+       }
     } else {
         p_c.remove(receiver);
         match self.owners.get(receiver) {

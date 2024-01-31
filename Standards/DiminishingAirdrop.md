@@ -62,24 +62,20 @@
 
 ### Single Diminishing Airdrop
 ```
-<06d9a1a4b1c6a622de362a51567b010979898aa9891ca71a5a56596dbfbc38e8,
-    {09f590fc69175307307af184c2c53358a40630eddce420a45b14a959b8d03bd3:DIMAIRDROP[
-        [09f590fc69175307307af184c2c53358a40630eddce420a45b14a959b8d03bd3:1],
-        [TXID:0(100000), TXID:2(99999999900000)]]}>
+<8d8f887752e0e3b5fbfc04958a54c107211aa1cd19062cf73bc8e8436fbc0c74,
+    {3b1b20518485ec89ce9acf5bb23c5ccdb0ac26d0661e377014e894d295eec29e:DIMAIRDROP[
+        [8c6be55f904d5711b6a3edb7921981fcdbe4e9b67c98ac06e0c0b9b121dc070c:1],
+        40000000000000,
+        10,
+        160,
+        250,
+        50,
+        TXID:1,
+        true]}>
 ```
 ### Batched Diminishing Airdrop
-```
-<06d9a1a4b1c6a622de362a51567b010979898aa9891ca71a5a56596dbfbc38e8,
-    {09f590fc69175307307af184c2c53358a40630eddce420a45b14a959b8d03bd3:DIMAIRDROP[
-        [09f590fc69175307307af184c2c53358a40630eddce420a45b14a959b8d03bd3:1],
-        [TXID:0(100000), TXID:2(99999999900000)]]},
-    {09f590fc69175307307af184c2c53358a40630eddce420a45b14a959b8d03bd3:DIMAIRDROP[
-        [25bf5e449ccb2c817e2323b571f96f694ff53c89cca88dd40ec93bf83d2eb443:2],
-        [TXID:0(250000), TXID:2(99999996506000)]]},
-    {09f590fc69175307307af184c2c53358a40630eddce420a45b14a959b8d03bd3:DIMAIRDROP[
-        [25bf5e449ccb2c817e2323b571f96f694ff53c89cca88dd40ec93bf83d2eb443:2],
-        [TXID:0(2500000), TXID:0(350000), TXID:2(99999996506000)]]}>
-```
+> [!NOTE]
+> Coming soon!
 
 ## Implementations
 
@@ -94,11 +90,11 @@ pub fn create_dim_airdrop(&mut self, txid: &String, payload: &String, sender_utx
     }
 
     if owners_amount == 0 {
-        return Err("create dim airdrop | owner amount is zero".to_string());
+        return Err("create_dim_airdrop: owner amount is zero".to_string());
     }
 
     if pool_amount > &owners_amount {
-        return Err("create dim airdrop | pool amount is more than the owned amount".to_string());
+        return Err("create_dim_airdrop: pool amount is more than the owned amount".to_string());
     }
 
     let mut drips = match self.drips.clone() {
@@ -129,7 +125,7 @@ pub fn create_dim_airdrop(&mut self, txid: &String, payload: &String, sender_utx
                 }
 
                 drips.insert(change_utxo.clone(),new_drips);
-                //remove the old drip from the vector
+                // Remove the old drip from the vector
                 drips.remove(&sender_utxo);
                 new_owner.2 = true;
             }
@@ -191,10 +187,10 @@ pub fn create_dim_airdrop(&mut self, txid: &String, payload: &String, sender_utx
 ## Examples
 
 ```
-<5af05854e32ee9f92315253b1606d3bb82b7683f0b56456b9744a5d9b0e7951f,
-    {adc110d77942e3e4ca9f2c585249a8d3b82d5b5a82563a0a01e9c591837d99d5:CLAIM_DIMAIRDROP[
-        ec0787ba6623f938455bccd97acdbbf623d4cf46e34abd3aef2a70d835fee7c3:1,
-        TXID:0]}>
+<55c9d410e1c0fa7ff62efbad05361da919f7c77b7ef14590e6db5d4a1954a698,
+    {3b1b20518485ec89ce9acf5bb23c5ccdb0ac26d0661e377014e894d295eec29e:CLAIM_DIMAIRDROP[
+        8c6be55f904d5711b6a3edb7921981fcdbe4e9b67c98ac06e0c0b9b121dc070c:1,
+        TXID:0]}
 ```
 
 ## Implementations
@@ -204,12 +200,12 @@ pub fn create_dim_airdrop(&mut self, txid: &String, payload: &String, sender_utx
 pub fn claim_dim_airdrop(&mut self, txid: &String, payload: &String, claim_id: &String, reciever_utxo: &String, pending: bool, donater_pub_address: &String) -> Result<(String, u64, bool), String> {
     let mut diminishing_airdrops = match self.diminishing_airdrops.clone() {
         Some(diminishing_airdrops) => diminishing_airdrops,
-        None => return Err("claim dim airdrop | contract has reached no claimable diminishing airdrops".to_string()),
+        None => return Err("claim_dim_airdrop: contract has reached no claimable diminishing airdrops".to_string()),
     };
 
     let mut dim_airdrop: DimAirdrop =  match diminishing_airdrops.get(claim_id) {
         Some(dim_airdrop) => dim_airdrop.clone(),
-        None => return Err("claim dim airdrop | diminishing airdrop claim id not found".to_string()),
+        None => return Err("claim_dim_airdrop: diminishing airdrop claim id not found".to_string()),
     };
 
     let mut new_owner = (reciever_utxo.to_string(), 0, false);

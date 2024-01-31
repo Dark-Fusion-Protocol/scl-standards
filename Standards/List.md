@@ -63,14 +63,14 @@ A listing can be created with this command.
 
 ### Single List
 ```
-<c894c5c8ea21bfe8c9aa0d9295db235ad74ec307ed4a493c06dd0393288608f7,
-    {05874c81d5f3b83880d112178d09dbe2845148d256d4183936229547d8497505:LIST[
-        [494afb28cd5de10ab76394ccaf18f6f2ee7e4fe0d8c19ad04fc4b40e63f7be92:3],
+<8380c54d943ec72857b3022da9906e6f7da5bb8220ab03ed7b5b0a724144c5f2,
+    {3b1b20518485ec89ce9acf5bb23c5ccdb0ac26d0661e377014e894d295eec29e:LIST[
+        [9859b9e8d3d1a343819f22876c74fc3b304438083f005378f7e64085c7c5bf27:0,55c9d410e1c0fa7ff62efbad05361da919f7c77b7ef14590e6db5d4a1954a698:0],
         TXID:0,
         TXID:1,
-        45600000000,
-        100,
-        tb1q3aryc8esjula2m87k2gr3fmme8mjnmwulx8lm4]}>
+        100000000,
+        10000,
+        tb1ql2qy8ecqdtfdd0np54c75vzlymkqykfc4uaa9h]}>
 ```
 ### Batched List
 ```
@@ -103,12 +103,13 @@ pub fn list(&mut self, txid: &String, payload: &String, sender_utxos: &Vec<Strin
         }
     }
     if owners_amount == 0 {
-        return Err("list | owner amount is zero".to_string());
+        return Err("list: owner amount is zero".to_string());
     }
 
     if sender_utxos.len() == 0 {
-        return Err("list | no senders".to_string());
+        return Err("list: no senders".to_string());
     }
+
     let mut new_owner = (new_listing.change_utxo.to_string(),0,false);
 
     if new_listing.list_amt <= owners_amount {
@@ -128,7 +129,7 @@ pub fn list(&mut self, txid: &String, payload: &String, sender_utxos: &Vec<Strin
                     let new_drip = Drip {
                         block_end: drip.block_end.clone(),
                         drip_amount: drip.drip_amount.clone(),
-                        amount: drip.amount.clone(),
+                        amount: drip.amount.clone() - (current_block_height - drip.start_block) * drip.drip_amount,
                         start_block: current_block_height,
                         last_block_dripped:current_block_height.clone()
                     };
@@ -209,7 +210,7 @@ pub fn cancel_listing(&mut self, txid: &String, listing_utxo: &String,  payload:
 
     let mut listings = match self.listings.clone() {
         Some(listings) => listings,
-        None => return Err("cancel listing | no listings for contract".to_string()),
+        None => return Err("cancel_listing: no listings for contract".to_string()),
     };
 
     let mut canceled_listing = Listing::default();
@@ -224,7 +225,7 @@ pub fn cancel_listing(&mut self, txid: &String, listing_utxo: &String,  payload:
 
     for (_, value) in fulfillments {
         if value == order_id{
-            return Err("cancel listing | order has been fulfilled".to_string());
+            return Err("cancel_listing: order has been fulfilled".to_string());
         }
     }
 

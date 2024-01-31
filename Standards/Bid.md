@@ -53,14 +53,12 @@ A bid can be created with this command.
 
 ### Single Bid
 ```
-<0195788746a3aef6d84385e908b4eb9328b98d1d08e0c7741ae8726c5d672d76,
-    02000000015fd7ed4e45406f8c14f9a164c2be0676963b1714b01d046c7b860eb078f8fa5a0100000000ffffffff0226020000000000001600148f464c1f30973fd56cfeb29038a77bc9f729eddc0000000000000000226a20ad6937747b0d5d015f4259c904b4112a7ec821c07ba6cee3960b781173148fcc00000000,
-    02000000000102762d675d6c72e81a74c7e0081d8db92893ebb408e98543d8f6aea346877895010000000000ffffffff1f551788e730c53b719e74f9fd6c55a88dc4d525c97427e26431c315a3fa5e770000000000ffffffff0426020000000000001600148f464c1f30973fd56cfeb29038a77bc9f729eddc204e000000000000160014e131adb04ec4fa88b93ec5adb9b1a8185d5bdc8e2602000000000000160014e131adb04ec4fa88b93ec5adb9b1a8185d5bdc8e0000000000000000226a2001aebd6d901368e26497230a932132f74fd828c797547067e244ac93db70eef80247304402203b5dca20db264ad1a10ba84b971365f33367c6caf30770458ad5d5095f147b67022028583b26f9198a8a060f3620cafc95c82523369feca8bd0af2cd64e4b3541b6d01210230b19ebf19c082e890a32f125d729dcb806995c662dc99c3e9b3be8651d310bf024730440220463bf627a2742e804b226e7128a40da82cd2bee5cd091261a932b2b68921ef4702204f8d93e9ad4a6743a2caba20c46f614e42d99ae482fdc3f45bf783a185b68ae901210230b19ebf19c082e890a32f125d729dcb806995c662dc99c3e9b3be8651d310bf0000000,
-    {38d40dfbcc39069c5b9dd7225ecfa9ef2140ebd2dca962328c30f922d74f776e:BID[
-        [ec0448061ed3ac31765758d032daa287c51a0f0ebd973ab2c64f9de54d99d98c:0,
-        20000000000,
-        100,
-        TXID:0]]}
+<456d3dcf23a55636a0f0683c2c8f5e9b53a787857b7ffc11be64c288a564c15d,
+    {3b1b20518485ec89ce9acf5bb23c5ccdb0ac26d0661e377014e894d295eec29e:BID[
+        [9859b9e8d3d1a343819f22876c74fc3b304438083f005378f7e64085c7c5bf27:0,
+        100000000,
+        30000,
+        TXID:0]]}>
 ```
 ### Batched Bid
 ```
@@ -86,7 +84,7 @@ A bid can be created with this command.
 pub fn bid(&mut self, txid: &String, payload: &String, bids: Vec<Bid>, bidding_ids: &Vec<String>, current_block_height: i32) -> Result<i32, String> {
     let mut listings_available = match self.listings.clone() {
         Some(listings_available) => listings_available,
-        None => return Err("bid | no listings for contract".to_string()),
+        None => return Err("bid: no listings for contract".to_string()),
     };
 
     let mut bids_available = match self.bids.clone() {
@@ -147,7 +145,7 @@ A bid can be cancelled with this command.
 pub fn cancel_bid(&mut self, txid: &String, bidding_utxo: &String, payload: String) -> Result<i32, String> {
     let mut bids_available = match self.bids.clone() {
         Some(bids_available) => bids_available,
-        None => return Err("cancel bid | no bids for contract".to_string()),
+        None => return Err("cancel_bid: no bids for contract".to_string()),
     };
 
     let fulfillments = match self.fulfillments.clone() {
@@ -157,7 +155,7 @@ pub fn cancel_bid(&mut self, txid: &String, bidding_utxo: &String, payload: Stri
 
     match self.listings.clone() {
         Some(listings) => listings,
-        None => return Err("cancel bid | no listings for contract".to_string()),
+        None => return Err("cancel_bid: no listings for contract".to_string()),
     };
 
     let mut bid_id = String::new();
@@ -169,7 +167,7 @@ pub fn cancel_bid(&mut self, txid: &String, bidding_utxo: &String, payload: Stri
     }
 
     if fulfillments.contains_key(&bid_id) {
-        return Err("cancel bid | order has been fulfilled".to_string());
+        return Err("cancel_bid: order has been fulfilled".to_string());
     }
 
     bids_available.remove(&bid_id);

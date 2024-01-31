@@ -62,11 +62,4 @@
     {SCL03:[DFG,8,[TXID:0(10000000000000000)]]}
 ```
 
-## Implementations
-
-### Rust
-```rust
-
-```
-
 ---

@@ -68,8 +68,13 @@ pub fn drip(&mut self, current_block_height: u64)-> Result<Vec<(String, u64, boo
         let mut updated_drips: Vec<Drip> = Vec::new();
         let mut new_owner = (utxo.to_string(),0, true);
         for mut drip in drips_on_utxo{
-            let mut drip_amount = (current_block_height - drip.last_block_dripped) * drip.drip_amount;
-            if current_block_height == drip.block_end && ((drip.block_end  - drip.start_block) + 1) * drip.drip_amount < drip.amount  {
+            let mut current_block = current_block_height;
+            if current_block_height > drip.block_end {
+                current_block = drip.block_end
+            }
+
+            let mut drip_amount = (current_block - drip.last_block_dripped) * drip.drip_amount;
+            if current_block == drip.block_end && ((drip.block_end  - drip.start_block) + 1) * drip.drip_amount < drip.amount  {
                 drip_amount += drip.amount - (drip.block_end  - drip.start_block + 1) * drip.drip_amount;
             }
 
@@ -85,13 +90,14 @@ pub fn drip(&mut self, current_block_height: u64)-> Result<Vec<(String, u64, boo
             }
 
             self.supply += drip_amount;
-            drip.last_block_dripped = current_block_height;
-            if current_block_height != drip.block_end {
+            drip.last_block_dripped = current_block;
+            if current_block < drip.block_end {
                 updated_drips.push(drip);
             }else{
                 new_owner.2 = false;
             }
         }
+
 
         if new_owner.1 != 0 {
             new_owners.push(new_owner);

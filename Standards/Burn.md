@@ -58,7 +58,7 @@ pub fn burn(&mut self, txid: &String, payload: &String, burner_utxos: &Vec<Strin
     }
     
     if owners_amount == 0 {
-        return Err("burn | owner has no tokens to burn".to_string());
+        return Err("burn: owner has no tokens to burn".to_string());
     }
 
     if owners_amount >= *burn_amount {
@@ -72,7 +72,7 @@ pub fn burn(&mut self, txid: &String, payload: &String, burner_utxos: &Vec<Strin
         self.supply -= *burn_amount;
         self.payloads.insert(txid.to_string(), payload.to_string());
     } else {
-        return Err("burn | trying to burn more than is owned".to_string());
+        return Err("burn: trying to brun more than is owned".to_string());
     }
     Ok(0)
 }

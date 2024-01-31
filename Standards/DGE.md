@@ -8,7 +8,7 @@
 
 ```[UTXO_SPENDER_1, UTXO_SPENDER_2, ... , UTXO_SPENDER_N]``` is a list of the UTXOs getting spent.  
 ```POOL_AMOUNT``` is total amount of tokens you are putting up for DGE.  
-```SATS_RATE``` is the amount of sats exchanged per asset. eg 10 000 sats rate means tokens will trade 1 for 0.00010000 BTC (10k sats).  
+```SATS_RATE``` is the amount of sats exchanged per token. eg 10 000 sats rate means tokens will trade 1 for 0.00010000 BTC (10k sats).  
 ```MAX_DROP``` is the upper limit (in tokens) per drop.  
 ```DRIP_DURATION``` is how long the drip should last.  
 ```DONATION_ADDRESS``` is the address the donations will go to.  
@@ -31,13 +31,13 @@
 ## Examples
 
 ```
-<ec0787ba6623f938455bccd97acdbbf623d4cf46e34abd3aef2a70d835fee7c3,
-    {adc110d77942e3e4ca9f2c585249a8d3b82d5b5a82563a0a01e9c591837d99d5:DGE
-        [[005974de174aa8319ee829fafe25b5e43848ce3965970b228a7b64c8a5e9b522:0],
+<8c6be55f904d5711b6a3edb7921981fcdbe4e9b67c98ac06e0c0b9b121dc070c,
+    {3b1b20518485ec89ce9acf5bb23c5ccdb0ac26d0661e377014e894d295eec29e:DGE[
+        [782f9b6e1329a400bb0f6dc3b678a1b3a0c3a8186b44d5cd7b82b19478264548:0],
         700000000000000,
-        349100000000,
-        50128902893,
-        4,
+        5351,
+        70000000000,
+        12960,
         tb1qlh458zyuv4kc9g4pawvczss0tz09ht0u28e7u3,
         TXID:1,
         true]}>
@@ -55,11 +55,11 @@ pub fn create_dge(&mut self, txid: &String, payload: &String, sender_utxos: &Vec
         }
     }
     if owners_amount == 0 {
-        return Err("create dge | owner amount is zero".to_string());
+        return Err("create_dge: owner amount is zero".to_string());
     }
 
     if dge.pool_amount > owners_amount {
-        return Err("create dge | pool amount is more than the owned amount".to_string());
+        return Err("create_dge: pool amount is more than the owned amount".to_string());
     }
 
     let mut drips = match self.drips.clone() {
@@ -90,7 +90,7 @@ pub fn create_dge(&mut self, txid: &String, payload: &String, sender_utxos: &Vec
                 }
 
                 drips.insert(change_utxo.clone(),new_drips);
-                //remove the old drip from the vector
+                // Remove the old drip from the vector
                 drips.remove(&sender_utxo);
                 new_owner.2 = true;
             }
@@ -152,22 +152,22 @@ Use this command to claim from the DGE.
 pub fn claim_dge(&mut self, txid: &String, payload: &String, claim_id: &String, reciever_utxo: &String, donater: &String, donation: u64, current_block_height: u64) -> Result<(String, u64), String> {
     let mut dges = match self.dges.clone() {
         Some(dges) => dges,
-        None => return Err("claim dge | contract has reached no claimable dges".to_string()),
+        None => return Err("claim_dge: contract has reached no claimable dges".to_string()),
     };
 
     let mut dge: DGE =  match dges.get(claim_id) {
         Some(dge) => dge.clone(),
-        None => return Err("claim dge | dge claim id not found".to_string()),
+        None => return Err("claim_dge: dge claim id not found".to_string()),
     };
 
     if donation as u128 > (dge.max_drop as u128 * dge.sats_rate as u128) / 10u64.pow(self.decimals as u32) as u128 {
-        return Err("claim dge | donation over maximum limit".to_string())
+        return Err("claim_dge: donation over maximum limit".to_string())
     }
 
     let mut new_owner = (reciever_utxo.to_string(), 0);
     let mut token_amount = donation* 10u64.pow(self.decimals as u32)/ (dge.sats_rate);
     if token_amount == 0 {
-        return Err("claim dge | token allocation is zero".to_string())
+        return Err("claim_dge: token allocation is zero".to_string())
     }
 
     if token_amount + dge.current_amount_dropped >= dge.pool_amount {

@@ -58,9 +58,8 @@ pub fn transfer(&mut self, txid: &String, payload: &String, sender_utxos: &Vec<S
         }
     }
     if owners_amount == 0 {
-        return Err("transfer | owner amount is zero".to_string());
+        return Err("transfer: owner amount is zero".to_string());
     }
-
     let mut total_value: u64 = 0;
     for entry in receivers.clone() {
         total_value += entry.1;
@@ -88,17 +87,29 @@ pub fn transfer(&mut self, txid: &String, payload: &String, sender_utxos: &Vec<S
 
                         new_drips.push(new_drip.clone());
                     }
-                    //remove the old drip from the vector
+                    
+                    // Remove the old drip from the vector
                     drips.remove(&sender_utxo);
                 }
             }
         }
 
         let last_index = receivers.len() - 1;
-        drips.insert(receivers[last_index].0.clone(),new_drips);
+        let mut drip_ret = 0;
+        if !new_drips.is_empty() {
+            let last_receiver = &receivers[last_index].0.clone();       
+            drips.insert(last_receiver.clone(), new_drips);
+            let blocks_dripped = owners_amount - total_value;
+        
+            if let Some(owned) = self.owners.get_mut(last_receiver) {
+                *owned += blocks_dripped;
+                drip_ret = *owned;
+            }
+        }
+        
+        
 
         let mut recievers_drips_present: Vec<bool> = Vec::new(); 
-        let mut drip_ret = 0;
         for entry in receivers.clone() {
             match self.owners.get(&entry.0) {
                 Some(&e) => self.owners.insert(entry.0.clone(), &e + entry.1),
@@ -106,18 +117,6 @@ pub fn transfer(&mut self, txid: &String, payload: &String, sender_utxos: &Vec<S
             };
 
             if drips.contains_key(&entry.0) {
-                let blocks_dripped = owners_amount - total_value;
-                match self.owners.get(&entry.0) {
-                    Some(&e) => {
-                        self.owners.insert(entry.0.clone(), &e + blocks_dripped);
-                        drip_ret = &e + blocks_dripped;
-                    },
-                    None => {
-                        self.owners.insert(entry.0.clone(), entry.1);
-                        drip_ret = entry.1;
-                    }
-                };
-
                 recievers_drips_present.push(true);
             }else{
                 recievers_drips_present.push(false);
@@ -128,7 +127,7 @@ pub fn transfer(&mut self, txid: &String, payload: &String, sender_utxos: &Vec<S
         self.drips = Some(drips);
         return Ok((recievers_drips_present, drip_ret));
     } else{
-        return Err("transfer | owner amount is less than recievers total".to_string());
+        return Err("transfer: owner amount is less than recievers total".to_string());
     }
 }
 ```
