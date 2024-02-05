@@ -175,13 +175,13 @@ pub fn create_dim_airdrop(&mut self, txid: &String, payload: &String, sender_utx
 ## Commands
 
 ```AIRDROP_ID``` is the first spender UTXO from the DIMAIRDROP call.  
-```RECIEVER_UTXO``` is the UTXO the claimant wishes to bind to.  
+```TXID:0``` is the UTXO the claimant must bind to.  
 
 ```
 <TXID,
     {CONTRACT_ID:CLAIM_DIMAIRDROP[
         AIRDROP_ID,
-        RECIEVER_UTXO]}>
+        TXID:0]}>
 ```
 
 ## Examples

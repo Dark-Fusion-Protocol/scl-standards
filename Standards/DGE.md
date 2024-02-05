@@ -127,13 +127,13 @@ pub fn create_dge(&mut self, txid: &String, payload: &String, sender_utxos: &Vec
 Use this command to claim from the DGE.
 
 ```DGE_ID``` is the first spender UTXO from the DGE call.  
-```RECEIVER_UTXO``` is the UTXO the claimant wishes to bind to.  
+```TXID:0``` is the UTXO the claimant must bind to.  
 
 ```
 <TXID,
     {CONTRACT_ID:CLAIM_DGE[
         DGE_ID,
-        RECEIVER_UTXO]}>
+        TXID:0]}>
 ```
 
 ## Examples
